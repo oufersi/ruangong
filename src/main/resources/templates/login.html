@@ -1,0 +1,21 @@
+<!DocType html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset = "utf-8">
+        <title>登录页面</title>
+    </head>
+    <body>
+        <form action="/login" method="post">
+            <p>
+                请输入用户名：<input type="text" name="name">
+            </p>
+            <p>
+                请输入密码：<input type="text" name="password">
+            </p>
+            <p>
+                <input type="submit" value="提交">
+            </p>
+        </form>
+        <a href="/register.go">注册</a>
+    </body>
+</html>
