@@ -1,15 +1,15 @@
 package com.example.forum.Entities;
 
 public class UserFactory {
-    public User createUser(){
-        return new User();
+    public NormalUser createUser(){
+        return new NormalUser();
     }
 
-    public User createUser(String name){
-        return new User(name);
+    public NormalUser createUser(String name){
+        return new NormalUser(name);
     }
 
-    public User createUser(String name, String password){
-        return new User(name, password);
+    public NormalUser createUser(String name, String password){
+        return new NormalUser(name, password);
     }
 }

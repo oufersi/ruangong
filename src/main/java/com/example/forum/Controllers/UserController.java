@@ -1,6 +1,6 @@
 package com.example.forum.Controllers;
 
-import com.example.forum.Entities.User;
+import com.example.forum.Entities.NormalUser;
 import com.example.forum.Exceptions.UserNotFoundException;
 import com.example.forum.Repositories.UserRepository;
 import com.example.forum.Assemblers.UserModelAssembler;
@@ -31,7 +31,7 @@ public class UserController {
 
     private final UserFactory userFactory;
 
-    private User curUser;
+    private NormalUser curUser;
 
     UserController(UserRepository repository, UserModelAssembler assembler){
         this.repository = repository;
@@ -40,8 +40,8 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public @ResponseBody CollectionModel<EntityModel<User>> all(){
-        List<EntityModel<User>> users = repository.findAll().stream()
+    public @ResponseBody CollectionModel<EntityModel<NormalUser>> all(){
+        List<EntityModel<NormalUser>> users = repository.findAll().stream()
             .map(assembler :: toModel)
                 .collect(Collectors.toList());
 
@@ -50,9 +50,9 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}")
-    public EntityModel<User> one(@PathVariable Long id){
+    public EntityModel<NormalUser> one(@PathVariable Long id){
 
-        User user = repository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+        NormalUser user = repository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
         
         System.out.print("user id : " + id);
 
@@ -69,18 +69,18 @@ public class UserController {
         String name = request.getParameter("name");
         String password = request.getParameter("password");
         System.out.println(name + " " + password);
-        List<User> users = repository.findByName(name);
-        for (User user : users) {
+        List<NormalUser> users = repository.findByName(name);
+        for (NormalUser user : users) {
             System.out.println(user.getName() + user.getPassword());
             if(user.getPassword().equals(password)){
                 System.out.println("login succeed by" + user.getName());
                 curUser = userFactory.createUser(name);
                 model.addAttribute("name", name);
                 if(user.getInformStatus()){
-                    model.addAttribute("informMessage", "鑷笂娆＄櫥褰曟湁鏂囩珷鏇存柊");
+                    model.addAttribute("informMessage", "自上次登录有文章更新");
                 }
                 else{
-                    model.addAttribute("informMessage", "鑷笂娆＄櫥褰曟棤鏂囩珷鏇存柊");
+                    model.addAttribute("informMessage", "自上次登录无文章更新");
                 }
                 user.infoChecked();
                 return "loginSuccess";
@@ -102,7 +102,7 @@ public class UserController {
 
         System.out.println("receive user : " + name + " " + password + " " + confirmPassword);
 
-        List<User> users = repository.findByName(name);
+        List<NormalUser> users = repository.findByName(name);
         if(users.size() != 0 || !password.equals(confirmPassword)){
             return "registerFail";
         }
@@ -122,8 +122,8 @@ public class UserController {
         attr.addAttribute("content", request.getParameter("content"));
         attr.addAttribute("author", curUser.getName());
 
-        List<User> users = repository.findAll();
-        for(User user : users){
+        List<NormalUser> users = repository.findAll();
+        for(NormalUser user : users){
             user.getInformed();
             repository.save(user);
             System.out.println("user : " + user.getName() + " get informed");

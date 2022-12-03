@@ -17,7 +17,7 @@ public class Passage {
 
     public Passage(){};
 
-    public Passage(String title, String content, User user){
+    public Passage(String title, String content, NormalUser user){
         this.title = title;
         this.content = content;
         this.author = user.getName();

@@ -56,7 +56,7 @@ public class PassageController {
 
         System.out.println("recerve param title : " + title + " content " + content + " author : " + author);
 
-        User user = new User(author);
+        NormalUser user = new NormalUser(author);
         repository.save(new Passage(title, content, user));
 
         attr.addAttribute("start", 0);

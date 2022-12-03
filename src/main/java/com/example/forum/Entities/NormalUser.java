@@ -3,21 +3,21 @@ package com.example.forum.Entities;
 import javax.persistence.Entity;
 
 @Entity
-public class User extends AbstractUser{
+public class NormalUser extends AbstractUser{
     
     private boolean isInformed;
     
-    public User(){
+    public NormalUser(){
         super();
         isInformed = false;
     }
 
-    public User(String name){
+    public NormalUser(String name){
         super(name);
         isInformed = false;
     }
 
-    public User(String name, String password){
+    public NormalUser(String name, String password){
         super(name, password);
         isInformed = false;
     }
