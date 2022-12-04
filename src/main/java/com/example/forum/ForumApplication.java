@@ -1,6 +1,6 @@
 package com.example.forum;
-import com.example.forum.Repositories.*;
-import com.example.forum.Entities.*;
+import com.example.forum.dao.*;
+import com.example.forum.entities.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,27 +18,27 @@ public class ForumApplication {
 	}
 
 	@Bean
-	CommandLineRunner demo(UserRepository userRepository, PassageRepository passageRepository){
+	CommandLineRunner demo(AdministraterRepository administraterRepository,NormalUserRepository nUserRepository, PostContentRepository passageRepository){
 		return args -> {
-			NormalUser user = new NormalUser("administrater", "12345");
-			userRepository.save(user);
-			passageRepository.save(new Passage("Hello", "Hello everyone!", user));
+			Administrater adm = new Administrater("administrater", "12345");
+			administraterRepository.save(adm);
+			passageRepository.save(new PostContent("Hello", "Hello everyone!", adm));
 			log.info("add administrater account and hello passage");
 
-			passageRepository.save(new Passage("Rules", "Don't use rude statements", user));
+			passageRepository.save(new PostContent("Rules", "Don't use rude statements", adm));
 			log.info("add rules");
 
-			user = new NormalUser("wangpeng", "12345");
-			userRepository.save(user);
+			NormalUser user = new NormalUser("wangpeng", "12345");
+			nUserRepository.save(user);
 
 			user = new NormalUser("zhanghui", "12cdx");
-			userRepository.save(user);
+			nUserRepository.save(user);
 
 			user = new NormalUser("zhangsan", "idjf");
-			userRepository.save(user);
+			nUserRepository.save(user);
 			
 			user = new NormalUser("zhouchang", "bccda");
-			userRepository.save(user);
+			nUserRepository.save(user);
 
 			log.info("add 4 normal users to database");
 		};

@@ -1,4 +1,4 @@
-package com.example.forum.Entities;
+package com.example.forum.entities;
 
 import javax.persistence.Entity;
 

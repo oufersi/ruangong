@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
         <meta charset = "utf-8">
-        <title>登录页面</title>
+        <title>管理员登录页面</title>
     </head>
     <body>
         <form action="/login" method="post">
@@ -10,13 +10,12 @@
                 请输入用户名：<input type="text" name="name">
             </p>
             <p>
-                请输入密码：<input type="text" name="password">
+                请输入管理员密码：<input type="text" name="password">
             </p>
             <p>
                 <input type="submit" value="提交">
             </p>
+            
         </form>
-        <a href="/register.go">注册</a>
-        <a href="administrater_login">管理员登录</a>
     </body>
 </html>

@@ -1,10 +1,10 @@
-package com.example.forum.Controllers;
+package com.example.forum.controllers;
 
-import com.example.forum.Entities.NormalUser;
-import com.example.forum.Exceptions.UserNotFoundException;
-import com.example.forum.Repositories.UserRepository;
-import com.example.forum.Assemblers.UserModelAssembler;
-import com.example.forum.Entities.UserFactory;
+import com.example.forum.assemblers.NormalUserAssembler;
+import com.example.forum.dao.NormalUserRepository;
+import com.example.forum.entities.NormalUser;
+import com.example.forum.entities.UserFactory;
+import com.example.forum.exceptions.UserNotFoundException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,29 +20,28 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @Controller
 public class UserController {
-    private final UserRepository repository;
+    private final NormalUserRepository nUserRepository;
 
-    private final UserModelAssembler assembler;
+    private final NormalUserAssembler nUserAssembler;
 
     private final UserFactory userFactory;
 
-    private NormalUser curUser;
-
-    UserController(UserRepository repository, UserModelAssembler assembler){
-        this.repository = repository;
-        this.assembler = assembler;
+    UserController(NormalUserRepository repository, NormalUserAssembler assembler){
+        this.nUserRepository = repository;
+        this.nUserAssembler = assembler;
         this.userFactory = new UserFactory();
     }
 
     @GetMapping("/users")
     public @ResponseBody CollectionModel<EntityModel<NormalUser>> all(){
-        List<EntityModel<NormalUser>> users = repository.findAll().stream()
-            .map(assembler :: toModel)
+        List<EntityModel<NormalUser>> users = nUserRepository.findAll().stream()
+            .map(nUserAssembler :: toModel)
                 .collect(Collectors.toList());
 
         return CollectionModel.of(users,
@@ -52,11 +51,11 @@ public class UserController {
     @GetMapping("/users/{id}")
     public EntityModel<NormalUser> one(@PathVariable Long id){
 
-        NormalUser user = repository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+        NormalUser user = nUserRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
         
         System.out.print("user id : " + id);
 
-        return assembler.toModel(user);
+        return nUserAssembler.toModel(user);
     }
 
     @RequestMapping("/login.go")
@@ -66,27 +65,43 @@ public class UserController {
 
     @RequestMapping("/login")
     public String login(HttpServletRequest request, Model model){
+        HttpSession session = request.getSession();
+        
         String name = request.getParameter("name");
         String password = request.getParameter("password");
         System.out.println(name + " " + password);
-        List<NormalUser> users = repository.findByName(name);
+
+        List<NormalUser> users = nUserRepository.findByName(name);
         for (NormalUser user : users) {
             System.out.println(user.getName() + user.getPassword());
             if(user.getPassword().equals(password)){
                 System.out.println("login succeed by" + user.getName());
-                curUser = userFactory.createUser(name);
+                
+                session.setAttribute("username", name);
+                session.setAttribute("password", password);
+                session.setMaxInactiveInterval(30 * 60);
+                System.out.println("create session " + session.getId());
+
                 model.addAttribute("name", name);
                 if(user.getInformStatus()){
-                    model.addAttribute("informMessage", "自上次登录有文章更新");
+                    model.addAttribute("informMessage", "鑷笂娆＄櫥褰曟湁鏂囩珷鏇存柊");
                 }
                 else{
-                    model.addAttribute("informMessage", "自上次登录无文章更新");
+                    model.addAttribute("informMessage", "鑷笂娆＄櫥褰曟棤鏂囩珷鏇存柊");
                 }
                 user.infoChecked();
+
+
+
                 return "loginSuccess";
             }
         }
         return "loginFail";
+    }
+
+    @RequestMapping("/administrater_login")
+    public String administraterLogin(HttpServletRequest request, Model model){
+        return "administrater_login";
     }
 
     @RequestMapping("/register.go")
@@ -102,11 +117,11 @@ public class UserController {
 
         System.out.println("receive user : " + name + " " + password + " " + confirmPassword);
 
-        List<NormalUser> users = repository.findByName(name);
+        List<NormalUser> users = nUserRepository.findByName(name);
         if(users.size() != 0 || !password.equals(confirmPassword)){
             return "registerFail";
         }
-        repository.save(userFactory.createUser(name, password));
+        nUserRepository.save(userFactory.createUser(name, password));
         System.out.println("add new user : " + name);
         return "registerSucceed";
     }
@@ -118,14 +133,16 @@ public class UserController {
 
     @RequestMapping("/turnToPC")
     public String turnToPC(HttpServletRequest request, RedirectAttributes attr){
+        HttpSession session = request.getSession();
+        
         attr.addAttribute("title", request.getParameter("title"));
         attr.addAttribute("content", request.getParameter("content"));
-        attr.addAttribute("author", curUser.getName());
+        attr.addAttribute("author", session.getAttribute("username"));
 
-        List<NormalUser> users = repository.findAll();
+        List<NormalUser> users = nUserRepository.findAll();
         for(NormalUser user : users){
             user.getInformed();
-            repository.save(user);
+            nUserRepository.save(user);
             System.out.println("user : " + user.getName() + " get informed");
         }
 

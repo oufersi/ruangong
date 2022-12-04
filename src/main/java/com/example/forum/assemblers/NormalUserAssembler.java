@@ -1,7 +1,7 @@
-package com.example.forum.Assemblers;
+package com.example.forum.assemblers;
 
-import com.example.forum.Controllers.UserController;
-import com.example.forum.Entities.NormalUser;
+import com.example.forum.controllers.UserController;
+import com.example.forum.entities.NormalUser;
 
 import org.springframework.stereotype.Component;
 import org.springframework.hateoas.EntityModel;
@@ -9,7 +9,7 @@ import org.springframework.hateoas.server.RepresentationModelAssembler;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @Component
-public class UserModelAssembler implements RepresentationModelAssembler<NormalUser, EntityModel<NormalUser>>{
+public class NormalUserAssembler implements RepresentationModelAssembler<NormalUser, EntityModel<NormalUser>>{
     @Override
     public EntityModel<NormalUser> toModel(NormalUser user){
 

@@ -1,4 +1,4 @@
-package com.example.forum.Entities;
+package com.example.forum.entities;
 
 public class UserFactory {
     public NormalUser createUser(){

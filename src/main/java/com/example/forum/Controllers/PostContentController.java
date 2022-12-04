@@ -1,4 +1,4 @@
-package com.example.forum.Controllers;
+package com.example.forum.controllers;
 
 import java.util.stream.Collectors;
 
@@ -12,17 +12,16 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.example.forum.Assemblers.PassageAssembler;
-import com.example.forum.Entities.*;
-import com.example.forum.Repositories.PassageRepository;
+import com.example.forum.assemblers.PostContentAssembler;
+import com.example.forum.dao.PostContentRepository;
+import com.example.forum.entities.*;
 
 @Controller
-public class PassageController {
-    private final PassageRepository repository;
+public class PostContentController {
+    private final PostContentRepository repository;
+    private final PostContentAssembler assembler;
 
-    private final PassageAssembler assembler;
-
-    public PassageController(PassageRepository repository, PassageAssembler assembler){
+    public PostContentController(PostContentRepository repository, PostContentAssembler assembler){
         this.repository = repository;
         this.assembler = assembler;
     }
@@ -31,7 +30,7 @@ public class PassageController {
     public String all(HttpServletRequest request, Model model){
         int start = Integer.parseInt(request.getParameter("start"));
         int len = Integer.parseInt(request.getParameter("len"));
-        List<EntityModel<Passage>> passages = repository.findAll().stream()
+        List<EntityModel<PostContent>> passages = repository.findAll().stream()
             .map(assembler :: toModel)
                 .collect(Collectors.toList());
         System.out.println("receive params start : " + start + " len : " + len);
@@ -43,7 +42,7 @@ public class PassageController {
             model.addAttribute("authorId", passages.get(start + i).getContent().getAuthorId());
             model.addAttribute("author", passages.get(start + i).getContent().getAuthor());
             model.addAttribute("num", passages.size());
-            System.out.println("g`et passage " + passages.get(start + i).getContent().getTitle());
+            System.out.println("get passage " + passages.get(start + i).getContent().getTitle());
         }
         return "passages";
     }
@@ -57,7 +56,7 @@ public class PassageController {
         System.out.println("recerve param title : " + title + " content " + content + " author : " + author);
 
         NormalUser user = new NormalUser(author);
-        repository.save(new Passage(title, content, user));
+        repository.save(new PostContent(title, content, user));
 
         attr.addAttribute("start", 0);
         attr.addAttribute("len", 1);

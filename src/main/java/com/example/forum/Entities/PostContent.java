@@ -1,23 +1,12 @@
-package com.example.forum.Entities;
+package com.example.forum.entities;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
 @Entity
-public class Passage {
-    
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String title;
-    private String content;
-    private String author;
-    private Long authorId;
+public class PostContent extends Content{
 
-    public Passage(){};
+    public PostContent(){};
 
-    public Passage(String title, String content, NormalUser user){
+    public PostContent(String title, String content, AbstractUser user){
         this.title = title;
         this.content = content;
         this.author = user.getName();
@@ -47,6 +36,11 @@ public class Passage {
     public Long setAuthorId(Long authorId){
         this.authorId = authorId;
         return authorId;
+    }
+
+    public Long addSubPost(Long id){
+        this.subIds.add(id);
+        return id;
     }
 
     public Long getId(){
