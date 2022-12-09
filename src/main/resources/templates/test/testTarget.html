@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head></head>
+    <body>
+        <script src="../../js/jquery.js"></script>
+        <script>
+            function myFunction(){
+                // document.write("hello")
+                $.post(
+                    "test/jsTest",
+                    {"userId":30,"username":"sunpeng.guo"},
+                    function(response){
+                        if(response.success){
+                            alert(response.message);
+                        }
+                    },
+                    "json"
+                )
+            }
+        </script>
+        <div>hello</div>
+        <a id="paramTest" th:href="${uidHref}">paramTest</a>
+        <button onclick="myFunction()">jsTest</button>
+    </body>
+</html>

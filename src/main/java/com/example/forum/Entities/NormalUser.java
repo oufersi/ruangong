@@ -1,15 +1,19 @@
 package com.example.forum.entities;
 
+import java.util.ArrayList;
+
 import javax.persistence.Entity;
 
 @Entity
 public class NormalUser extends AbstractUser{
     
     private boolean isInformed;
+    private ArrayList<Long> msgIds;
     
     public NormalUser(){
         super();
         isInformed = false;
+        msgIds = new ArrayList<Long>();
     }
 
     public NormalUser(String name){
@@ -32,5 +36,9 @@ public class NormalUser extends AbstractUser{
 
     public void infoChecked(){
         isInformed = false;
+    }
+
+    public void receiveMsg(Long id){
+        msgIds.add(id);
     }
 }

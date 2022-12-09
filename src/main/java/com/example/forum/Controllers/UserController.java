@@ -7,6 +7,7 @@ import com.example.forum.entities.UserFactory;
 import com.example.forum.exceptions.UserNotFoundException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.hateoas.CollectionModel;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,6 +27,7 @@ import javax.servlet.http.HttpSession;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @Controller
+@RequestMapping("/user")
 public class UserController {
     private final NormalUserRepository nUserRepository;
 
@@ -58,9 +61,45 @@ public class UserController {
         return nUserAssembler.toModel(user);
     }
 
-    @RequestMapping("/login.go")
-    public String loginGo(){
-        return "login";
+    /*
+     * entrance request of WebApp
+     * require login if there is no login information in request session, otherwise turn to the welcomePage
+     */
+    @RequestMapping("/mainPage")
+    public String loginGo(HttpServletRequest request, Model model){
+        HttpSession session = request.getSession();
+
+        String name = (String)session.getAttribute("username");
+        Long uid = (Long)session.getAttribute("uid");
+        session.setMaxInactiveInterval(30 * 60);
+        System.out.println("receive session with name:" + name);
+
+        if(name != null){
+            System.out.println("login succeed by" + name);
+            
+            Optional<NormalUser> op = nUserRepository.findById(uid);
+            NormalUser user;
+
+            if(!op.isPresent()){
+                return "/error/errorPage";
+            }
+            user = op.get();
+
+            model.addAttribute("name", name);
+            if(user.getInformStatus()){
+                model.addAttribute("informMessage", "自上次登录有文章更新");
+            }
+            else{
+                model.addAttribute("informMessage", "自上次登录无文章更新");
+            }
+            user.infoChecked();
+            // problem ?
+            nUserRepository.save(user);
+
+            return "user/welcomePage";
+        }
+
+        return "user/loginPage";
     }
 
     @RequestMapping("/login")
@@ -78,7 +117,8 @@ public class UserController {
                 System.out.println("login succeed by" + user.getName());
                 
                 session.setAttribute("username", name);
-                session.setAttribute("password", password);
+                // session.setAttribute("password", password);
+                session.setAttribute("uid", user.getId());
                 session.setMaxInactiveInterval(30 * 60);
                 System.out.println("create session " + session.getId());
 
@@ -91,22 +131,20 @@ public class UserController {
                 }
                 user.infoChecked();
 
-
-
-                return "loginSuccess";
+                return "user/welcomePage";
             }
         }
-        return "loginFail";
+        return "user/loginFailPage";
     }
 
     @RequestMapping("/administrater_login")
     public String administraterLogin(HttpServletRequest request, Model model){
-        return "administrater_login";
+        return "user/admLoginPage";
     }
 
     @RequestMapping("/register.go")
     public String registerGo(){
-        return "register";
+        return "user/registerPage";
     }
 
     @RequestMapping("/register")
@@ -119,33 +157,28 @@ public class UserController {
 
         List<NormalUser> users = nUserRepository.findByName(name);
         if(users.size() != 0 || !password.equals(confirmPassword)){
-            return "registerFail";
+            return "registerFailPage";
         }
         nUserRepository.save(userFactory.createUser(name, password));
         System.out.println("add new user : " + name);
-        return "registerSucceed";
+        return "user/registerSuccessPage";
     }
 
-    @RequestMapping("/newPassage.go")
-    public String newPassageGo(){
-        return "newPassageGo";
-    }
-
-    @RequestMapping("/turnToPC")
-    public String turnToPC(HttpServletRequest request, RedirectAttributes attr){
-        HttpSession session = request.getSession();
+    @RequestMapping("/searchUser")
+    public void searchUser(HttpServletRequest request){
         
-        attr.addAttribute("title", request.getParameter("title"));
-        attr.addAttribute("content", request.getParameter("content"));
-        attr.addAttribute("author", session.getAttribute("username"));
+    }
 
-        List<NormalUser> users = nUserRepository.findAll();
-        for(NormalUser user : users){
-            user.getInformed();
-            nUserRepository.save(user);
-            System.out.println("user : " + user.getName() + " get informed");
-        }
+    @RequestMapping("/getUserPage")
+    public ModelAndView getUserPage(HttpServletRequest request){
+        ModelAndView MV = new ModelAndView("user/userPage");
 
-        return "redirect:/newPassage";
+        Long uid = Long.parseLong(request.getParameter("uid"));
+        String messageUrl = "message/newMsg" + uid;
+
+        MV.addObject("uid", uid);
+        MV.addObject("messageUrl", messageUrl);
+
+        return MV;
     }
 }

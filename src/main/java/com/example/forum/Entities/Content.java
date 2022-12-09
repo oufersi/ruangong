@@ -17,6 +17,6 @@ public abstract class Content {
 
     protected Content(){
         subIds = new ArrayList<Long>();
-        title = "ÎÞ±êÌâ";
+        title = "æ— æ ‡é¢˜";
     }
 }

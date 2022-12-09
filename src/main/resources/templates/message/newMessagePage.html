@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset = "utf-8"/>
+        <title>用户界面</title>
+    </head>
+    <body>
+        <!-- <form name="search_user_form" action="/user/searchUser">
+            请输入用户名称:<input type="text">
+        </forum> -->
+        <div th:text="send to: user ${name} ${uid}"></div>
+        <form name="message_content" action="/message/sendMsg?senderId=&receiverId=">
+            <p>内容: <input type="text" name="content"></p>
+            <p><input type="submit" value="发送"></p>
+        </form>
+    </body>
+</html>

@@ -14,10 +14,17 @@
                 <td th:text="${informMessage}"></td>
             </tr>
         </table>
-        <form action = "/passages" method = "get">
+        <form action = "/content/posts" method = "get">
             <input readonly="readonly" type="text" name="start" value="0">
             <input readonly="readonly" type="text" name="len" value="1">
             <input type="submit" value="查看文章">
         </form>
+        <a>修改个人信息</a>
+        <table>
+            <tr>
+                <td th:text="${mesMessage}"></td>
+                <a herf="/message/checkMessage">查看消息</a>
+            </tr>
+        </table>
     </body>
 </html>

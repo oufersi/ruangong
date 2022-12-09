@@ -26,15 +26,12 @@
                 <td th:text="${authorId}"></td>
             </tr>
         </table>
-        <form action="/passages" method="get">
+        <form th:action="${postsUrl}" method="get">
             
-            <input readonly="readonly" type="text" name="start" value="0">
             <p>输入文章编号:</p>
-            <input type="text" name="len">
+            <input type="text" name="pageNum">
             <input type="submit" value="跳转到对应的文章">
         </form>
-        <form action="/newPassage.go">
-            <input type="submit" value="新文章"> 
-        </form>
+        <a href="/content/newPost">new post</a>
     </body>
 </html>

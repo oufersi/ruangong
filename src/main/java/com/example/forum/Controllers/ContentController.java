@@ -3,6 +3,7 @@ package com.example.forum.controllers;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import java.util.List;
 
@@ -13,25 +14,36 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.forum.assemblers.PostContentAssembler;
+import com.example.forum.dao.NormalUserRepository;
 import com.example.forum.dao.PostContentRepository;
 import com.example.forum.entities.*;
 
 @Controller
-public class PostContentController {
-    private final PostContentRepository repository;
-    private final PostContentAssembler assembler;
+@RequestMapping("/content")
+public class ContentController {
+    private final NormalUserRepository nUserRepository;
+    private final PostContentRepository postContentRepository;
+    private final PostContentAssembler postContentAssembler;
 
-    public PostContentController(PostContentRepository repository, PostContentAssembler assembler){
-        this.repository = repository;
-        this.assembler = assembler;
+    private int numEachPage;
+
+    public ContentController(NormalUserRepository nUserRepository,
+                             PostContentRepository postContentRepository,
+                             PostContentAssembler assembler){
+        
+        this.nUserRepository = nUserRepository;
+        this.postContentRepository = postContentRepository;
+        this.postContentAssembler = assembler;
+
+        this.numEachPage = 2;
     }
 
-    @RequestMapping("/passages")
+    @RequestMapping("/posts")
     public String all(HttpServletRequest request, Model model){
         int start = Integer.parseInt(request.getParameter("start"));
         int len = Integer.parseInt(request.getParameter("len"));
-        List<EntityModel<PostContent>> passages = repository.findAll().stream()
-            .map(assembler :: toModel)
+        List<EntityModel<PostContent>> passages = postContentRepository.findAll().stream()
+            .map(postContentAssembler :: toModel)
                 .collect(Collectors.toList());
         System.out.println("receive params start : " + start + " len : " + len);
         model.addAttribute("start", start);
@@ -44,11 +56,22 @@ public class PostContentController {
             model.addAttribute("num", passages.size());
             System.out.println("get passage " + passages.get(start + i).getContent().getTitle());
         }
-        return "passages";
+        return "content/postsPage";
+    }
+
+    @RequestMapping("/newPost")
+    public String newPost(HttpServletRequest request){
+        HttpSession session = request.getSession();
+        
+        String name = (String)session.getAttribute("name");
+        if(name != null){
+            return "/content/newPostPage";
+        }
+        return "/user/loginPage";
     }
     
-    @RequestMapping("/newPassage")
-    public String newPassage(HttpServletRequest request, RedirectAttributes attr){
+    @RequestMapping("/addNewPost")
+    public String addNewPassage(HttpServletRequest request, RedirectAttributes attr){
         String title = request.getParameter("title");
         String content = request.getParameter("content");
         String author = request.getParameter("author");
@@ -56,11 +79,11 @@ public class PostContentController {
         System.out.println("recerve param title : " + title + " content " + content + " author : " + author);
 
         NormalUser user = new NormalUser(author);
-        repository.save(new PostContent(title, content, user));
+        postContentRepository.save(new PostContent(title, content, user));
 
-        attr.addAttribute("start", 0);
-        attr.addAttribute("len", 1);
+        attr.addAttribute("postsUrl", "/content/posts?start=0");
+        attr.addAttribute("pageNum", 1);
         
-        return "redirect:/passages";
+        return "redirect:/content/posts";
     }
 }
